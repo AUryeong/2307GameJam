@@ -12,6 +12,8 @@ public class InGameManager : Singleton<InGameManager>
     [SerializeField] private Enemy originEnemy;
     [SerializeField] private Enemy upgradeEnemy;
 
+    public Material flashMaterial;
+
     private Vector3 defaultCameraPos;
 
     private float cameraShakePower = 0;
@@ -20,10 +22,10 @@ public class InGameManager : Singleton<InGameManager>
     private float maxTimer = 2;
 
     private float feverDuration = 0;
-    private float feverMaxDuration = 5;
+    private float feverMaxDuration = 2;
     private float feverInvDuration = 0;
 
-    [SerializeField] private ParticleSystem ferverParticleSystem;
+    [SerializeField] private ParticleSystem feverParticle;
 
     private int combo;
     public readonly KeyCode[] keyCodes = new KeyCode[]
@@ -63,6 +65,8 @@ public class InGameManager : Singleton<InGameManager>
 
         EnemyMoveUpdate();
         defaultCameraPos = Camera.main.transform.position;
+
+        SoundManager.Instance.PlaySound("ingame", ESoundType.BGM);
     }
 
     private void Update()
@@ -109,7 +113,7 @@ public class InGameManager : Singleton<InGameManager>
             if (feverDuration <= 0)
             {
                 UIManager.Instance.DeActiveSkill();
-                ferverParticleSystem.Stop();
+                feverParticle.Stop();
                 feverInvDuration = 1;
             }
         }
@@ -122,6 +126,7 @@ public class InGameManager : Singleton<InGameManager>
     private void TimerUpdate()
     {
         if (feverDuration > 0) return;
+        if (feverInvDuration > 0) return;
 
         timer += Time.deltaTime;
         UIManager.Instance.UpdaeTimer(timer / maxTimer);
@@ -145,6 +150,7 @@ public class InGameManager : Singleton<InGameManager>
     {
         Time.timeScale = 0;
         isGaming = false;
+        SoundManager.Instance.PlaySound("gameover", ESoundType.SFX, 3);
         UIManager.Instance.GameOver();
     }
 
@@ -178,6 +184,7 @@ public class InGameManager : Singleton<InGameManager>
 
                     var slashEffect = PoolManager.Instance.Init("Slash Effect");
                     slashEffect.transform.SetParent(Player.Instance.transform);
+                    slashEffect.transform.localPosition = Vector3.up;
 
                     Player.Instance.Attack();
                     Player.Instance.transform.DOMoveX(enemy.transform.position.x, 0.2f);
@@ -186,6 +193,8 @@ public class InGameManager : Singleton<InGameManager>
                 {
                     combo = 0;
                     Player.Instance.Hp--;
+                    SoundManager.Instance.PlaySound("hurt2");
+                    SoundManager.Instance.PlaySound("player");
                 }
             }
         }
@@ -236,10 +245,12 @@ public class InGameManager : Singleton<InGameManager>
 
     public void Fever()
     {
+        SoundManager.Instance.PlaySound("levelup2");
+
         feverDuration = feverMaxDuration;
         UIManager.Instance.ActiveSkill();
 
-        ferverParticleSystem.Play();
-        ferverParticleSystem.gameObject.SetActive(true);
+        feverParticle.Play();
+        feverParticle.gameObject.SetActive(true);
     }
 }

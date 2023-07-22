@@ -42,6 +42,7 @@ public class Player : Singleton<Player>
                 exp -= maxExp;
                 level++;
                 maxExp = Mathf.Pow(level, 1.7f) * 100;
+                SoundManager.Instance.PlaySound("levelup", ESoundType.SFX, 1.2f);
                 InGameManager.Instance.LevelUp();
             }
             UIManager.Instance.UpdateLevel(level, exp, maxExp);

@@ -19,6 +19,9 @@ public class Enemy : MonoBehaviour
             direction = value;
         }
     }
+
+    private Material originMaterial;
+
     private StringBuilder canKeyList = new StringBuilder();
     private SpriteRenderer spriteRenderer;
     private SpriteRenderer SpriteRenderer
@@ -62,9 +65,17 @@ public class Enemy : MonoBehaviour
         new Color(72/255f,72/255f,82/255f),
     };
 
+    private void Awake()
+    {
+        originMaterial = SpriteRenderer.material;
+    }
+
     public void Init()
     {
         gameObject.SetActive(true);
+
+        if (originMaterial != null)
+            SpriteRenderer.material = originMaterial;
 
         hp = maxHp;
 
@@ -95,7 +106,7 @@ public class Enemy : MonoBehaviour
                 {
                     if (isAddComma)
                         canKeyList.Append(", ");
-                    
+
                     canKeyList.Append(InGameManager.Instance.keyCodeStrings[i]);
                     isAddComma = true;
                 }
@@ -107,10 +118,19 @@ public class Enemy : MonoBehaviour
     {
         if (hp > 0)
         {
+            SoundManager.Instance.PlaySound("hurt", ESoundType.SFX);
+            StartCoroutine(HitCoroutine());
             hp--;
             if (hp <= 0)
                 Die();
         }
+    }
+
+    IEnumerator HitCoroutine()
+    {
+        spriteRenderer.material = InGameManager.Instance.flashMaterial;
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.material = originMaterial;
     }
 
     public void Move(int index)
@@ -132,6 +152,8 @@ public class Enemy : MonoBehaviour
 
     public void Die()
     {
+        SoundManager.Instance.PlaySound("enemy", ESoundType.SFX);
+        SoundManager.Instance.PlaySound("enemy 1", ESoundType.SFX, 0.6f);
         InGameManager.Instance.KillEnemy(this);
         SpriteRenderer.DOFade(0, 0.3f).OnComplete(() =>
         {

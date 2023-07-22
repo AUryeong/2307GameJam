@@ -16,18 +16,41 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private Image levelupBlack;
     [SerializeField] private Text levelupText;
 
-    [SerializeField] private Image durationGauge;
+    [Header("Clock")]
+    [SerializeField] private Image clockDurationGauge;
+    [SerializeField] private Image clockArrow;
 
     [Header("Game Over")]
     [SerializeField] private Image warning;
     [SerializeField] private Image gameOverWindow;
     [SerializeField] private Text gameOverText;
 
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button titleButton;
+
     [Header("Skill")]
     [SerializeField] private Image skillGauge;
     [SerializeField] private Image skillOverlay;
 
     [SerializeField] private Text comboText;
+
+    protected override void OnCreated()
+    {
+        base.OnCreated();
+        restartButton.onClick.RemoveAllListeners();
+        restartButton.onClick.AddListener(() =>
+        {
+            SceneManager.Instance.SceneLoad(SceneType.InGame);
+            SoundManager.Instance.PlaySound("button");
+        });
+
+        titleButton.onClick.RemoveAllListeners();
+        titleButton.onClick.AddListener(() =>
+        {
+            SceneManager.Instance.SceneLoad(SceneType.Title);
+            SoundManager.Instance.PlaySound("button");
+        });
+    }
 
     public void UpdateHp(int hp)
     {
@@ -75,7 +98,8 @@ public class UIManager : Singleton<UIManager>
 
     public void UpdaeTimer(float timerAmount)
     {
-        durationGauge.fillAmount = timerAmount;
+        clockDurationGauge.fillAmount = timerAmount;
+        clockArrow.rectTransform.rotation = Quaternion.Euler(0, 0, -360 * timerAmount);
     }
     public void UpdateSkill(float gaugeAmount)
     {
@@ -96,7 +120,7 @@ public class UIManager : Singleton<UIManager>
     public void GameOver()
     {
         gameOverWindow.gameObject.SetActive(true);
-        gameOverText.text = $"SSS급 천재헌터 김준우는\r\n레벨을 {Player.Instance.level} 밖에 달성하지 못했습니다.";
+        gameOverText.text = $"고블린 슬레이엄 김준식은\r\n레벨을 {Player.Instance.level} 밖에 달성하지 못했습니다.";
     }
 
     public void UpdateCombo(int comboCount)
