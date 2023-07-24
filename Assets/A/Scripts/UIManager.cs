@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
@@ -13,7 +14,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private Text lvText;
     [SerializeField] private Text expText;
 
-    [SerializeField] private Image levelupBlack;
+    [FormerlySerializedAs("levelupBlack")] [SerializeField] private Image backgroundBlack;
     [SerializeField] private Text levelupText;
 
     [Header("Clock")]
@@ -33,6 +34,8 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private Image skillOverlay;
 
     [SerializeField] private Text comboText;
+    [SerializeField] private Text feverOnText;
+    [SerializeField] private Text feverOffText;
 
     protected override void OnCreated()
     {
@@ -74,17 +77,17 @@ public class UIManager : Singleton<UIManager>
 
     public void LevelUP()
     {
-        levelupBlack.gameObject.SetActive(true);
-        levelupBlack.color = new Color(0, 0, 0, 0);
-        levelupBlack.DOFade(0.3f, 0.75f);
+        backgroundBlack.gameObject.SetActive(true);
+        backgroundBlack.color = new Color(0, 0, 0, 0);
+        backgroundBlack.DOFade(0.3f, 0.75f);
 
         levelupText.rectTransform.anchoredPosition = new Vector2(-1500, 0);
         levelupText.rectTransform.DOAnchorPosX(0, 0.75f).OnComplete(() =>
         {
             levelupText.rectTransform.DOAnchorPosX(1500, 0.75f);
-            levelupBlack.DOFade(0, 0.75f).OnComplete(() =>
+            backgroundBlack.DOFade(0, 0.75f).OnComplete(() =>
             {
-                levelupBlack.gameObject.SetActive(false);
+                backgroundBlack.gameObject.SetActive(false);
             });
         });
     }
@@ -108,19 +111,52 @@ public class UIManager : Singleton<UIManager>
 
     public void ActiveSkill()
     {
-        skillOverlay.gameObject.SetActive(true);
-        skillOverlay.color = new Color(1, 208 / 255f, 0, 0.1f);
-        skillOverlay.DOFade(0, 0.75f).SetLoops(-1, LoopType.Yoyo);
+        feverOnText.gameObject.SetActive(true);
+        backgroundBlack.gameObject.SetActive(true);
+        
+        backgroundBlack.DOKill();
+        backgroundBlack.color = new Color(0, 0, 0, 0);
+        backgroundBlack.DOFade(0.3f, 0.75f);
+
+        feverOnText.rectTransform.anchoredPosition = new Vector2(-1700, 0);
+        feverOnText.rectTransform.DOAnchorPosX(0, 0.75f).OnComplete(() =>
+        {
+            feverOnText.rectTransform.DOAnchorPosX(1700, 0.75f);
+            backgroundBlack.DOFade(0, 0.75f).OnComplete(() =>
+            {
+                backgroundBlack.gameObject.SetActive(false);
+                skillOverlay.gameObject.SetActive(true);
+                skillOverlay.color = new Color(1, 208 / 255f, 0, 0.1f);
+                skillOverlay.DOFade(0, 0.75f).SetLoops(-1, LoopType.Yoyo);
+            });
+        });
     }
     public void DeActiveSkill()
     {
         skillOverlay.gameObject.SetActive(false);
+        
+        feverOffText.gameObject.SetActive(true);
+        backgroundBlack.gameObject.SetActive(true);
+        
+        backgroundBlack.DOKill();
+        backgroundBlack.color = new Color(0, 0, 0, 0);
+        backgroundBlack.DOFade(0.3f, 0.75f);
+
+        feverOffText.rectTransform.anchoredPosition = new Vector2(-1500, 0);
+        feverOffText.rectTransform.DOAnchorPosX(0, 0.75f).OnComplete(() =>
+        {
+            feverOffText.rectTransform.DOAnchorPosX(1500, 0.75f);
+            backgroundBlack.DOFade(0, 0.75f).OnComplete(() =>
+            {
+                backgroundBlack.gameObject.SetActive(false);
+            });
+        });
     }
 
     public void GameOver()
     {
         gameOverWindow.gameObject.SetActive(true);
-        gameOverText.text = $"°íºí¸° ½½·¹ÀÌ¾ö ±èÁØ½ÄÀº\r\n·¹º§À» {Player.Instance.level} ¹Û¿¡ ´Ş¼ºÇÏÁö ¸øÇß½À´Ï´Ù.";
+        gameOverText.text = $"ê³ ë¸”ë¦° ìŠ¬ë ˆì´ì—„ ê¹€ì¤€ì‹ì€\r\në ˆë²¨ì„ {Player.Instance.level} ë°–ì— ë‹¬ì„±í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.";
     }
 
     public void UpdateCombo(int comboCount)

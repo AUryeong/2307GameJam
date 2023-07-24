@@ -83,16 +83,17 @@ public class InGameManager : Singleton<InGameManager>
     {
         isGaming = false;
         UIManager.Instance.LevelUP();
+        Player.Instance.Hp++;
 
         EnemyMoveUpdate();
 
         foreach(var enemy in enemies)
             enemy.UpdateDiretion();
 
-        StartCoroutine(LevelUpCoroutine());
+        StartCoroutine(TextWaitCoroutine());
     }
 
-    private IEnumerator LevelUpCoroutine()
+    private IEnumerator TextWaitCoroutine()
     {
         yield return new WaitForSeconds(1.5f);
         isGaming = true;
@@ -112,14 +113,11 @@ public class InGameManager : Singleton<InGameManager>
             feverDuration -= Time.deltaTime;
             if (feverDuration <= 0)
             {
+                isGaming = false;
                 UIManager.Instance.DeActiveSkill();
+                StartCoroutine(TextWaitCoroutine());
                 feverParticle.Stop();
-                feverInvDuration = 1;
             }
-        }
-        if(feverInvDuration > 0)
-        {
-            feverInvDuration -= Time.deltaTime;
         }
     }
 
@@ -245,8 +243,10 @@ public class InGameManager : Singleton<InGameManager>
 
     public void Fever()
     {
+        isGaming = false;
         SoundManager.Instance.PlaySound("levelup2");
 
+        StartCoroutine(TextWaitCoroutine());
         feverDuration = feverMaxDuration;
         UIManager.Instance.ActiveSkill();
 

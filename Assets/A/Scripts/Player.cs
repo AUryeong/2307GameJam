@@ -18,7 +18,7 @@ public class Player : Singleton<Player>
                 UIManager.Instance.HitWarning();
                 InGameManager.Instance.CameraShake(0.2f, 0.1f);
             }
-            hp = value;
+            hp = Mathf.Clamp(value,0,3);
             UIManager.Instance.UpdateHp(value);
             InGameManager.Instance.TimerReset();
             if (hp <= 0)
