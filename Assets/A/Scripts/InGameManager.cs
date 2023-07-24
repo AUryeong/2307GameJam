@@ -168,12 +168,12 @@ public class InGameManager : Singleton<InGameManager>
     {
         if (feverInvDuration > 0) return; ;
 
+        float inputDirection = Mathf.RoundToInt(keyCodes.Length / Player.Instance.level);
         for (int i = 0; i < keyCodes.Length; i++)
         {
             if (Input.GetKeyDown(keyCodes[i]))
             {
                 var enemy = enemies[0];
-                float inputDirection = Mathf.RoundToInt(keyCodes.Length / (Player.Instance.level));
                 if (Mathf.FloorToInt(i / inputDirection) == enemy.Direction || feverDuration > 0)
                 {
                     enemy.OnHit();
